@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'keyboard.dart';
 import 'dart:math';
 import 'wordlist.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:flutter/services.dart';
 // ignore_for_file: prefer_const_constructors
 // ignore_for_file: prefer_const_literals_to_create_immutables
 
@@ -19,7 +21,7 @@ class Wordle extends StatefulWidget {
 
 class _WordleState extends State<Wordle> {
   FocusNode focusNode = FocusNode();
-  String word = kWordList[Random().nextInt(kWordList.length) + 1].toUpperCase();
+  String word = kWordList[Random().nextInt(kWordList.length)].toUpperCase();
   int currentWord = 0;
   List<String> words = ['', '', '', '', '', ''];
   List sequences = [
@@ -31,7 +33,7 @@ class _WordleState extends State<Wordle> {
     [0,0,0,0,0]
   ];
   final _controller = TextEditingController();
-  void updateWord(char) {
+  void updateWord(String char, BuildContext context) {
     setState(() {
       print(word);
       if (char == 'DEL') {
@@ -40,6 +42,8 @@ class _WordleState extends State<Wordle> {
       } else if (char == 'ENTER') {
         if (words[currentWord].length == 5) {
           if (kWordList.contains(words[currentWord].toLowerCase())) {
+            var tempWord = word;
+            var tempInput = words[currentWord];
             for(int i = 0; i < 5; i++) {
               if (words[currentWord][i] == word[i]) {
                 //  Correct letter and place
@@ -52,7 +56,21 @@ class _WordleState extends State<Wordle> {
             }
             currentWord++;
           } else {
-
+            Alert(
+              context: context,
+              title: "Word not in word list",
+              style: AlertStyle(
+                backgroundColor: Colors.white,
+                animationType: AnimationType.grow,
+                animationDuration: Duration(milliseconds: 200),
+                titleStyle: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold
+                )
+              ),
+              buttons: [
+              ],
+            ).show();
           }
 
 
@@ -65,6 +83,9 @@ class _WordleState extends State<Wordle> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
